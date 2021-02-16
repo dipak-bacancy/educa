@@ -1,19 +1,70 @@
+import 'dart:io';
+
+import 'package:camera/camera.dart';
+import 'package:educa/model/storage.dart';
 import 'package:educa/src/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
-class Video extends StatelessWidget {
+class Video extends StatefulWidget {
+  @override
+  _VideoState createState() => _VideoState();
+}
+
+class _VideoState extends State<Video> {
+  List<CameraDescription> _cameras;
+  CameraController _controller;
+  Future<void> _initializeControllerFuture;
+
+  bool isCameraReady = false;
+  bool showCapturedPhoto = false;
+  bool _isRecording = false;
+  bool enableAudio = true;
+
+  XFile videoFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeCamera() async {
+    _cameras = await availableCameras();
+
+    print(_cameras);
+
+    _controller = CameraController(_cameras.first, ResolutionPreset.medium);
+    _initializeControllerFuture = _controller.initialize();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      isCameraReady = true;
+    });
+  }
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         body: Builder(
             builder: (context) => Stack(
                   children: [
-                    Image.asset(
+                    /*  Image.asset(
                       'assets/humberto-large.png',
                       fit: BoxFit.fill,
                       height: double.infinity,
                       width: double.infinity,
-                    ),
+                    ), */
+                    _buildCameraPreview(),
 
                     Positioned(
                       top: 60,
@@ -65,14 +116,20 @@ class Video extends StatelessWidget {
                             ),
                             child: IconButton(
                               onPressed: () {
-                                showBottomSheet<void>(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        EducaBottomSheet());
+                                if (_isRecording) {
+                                  onStopButtonPressed();
+                                  showBottomSheet<void>(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          EducaBottomSheet(
+                                              videoFile: videoFile));
+                                } else {
+                                  onVideoRecordButtonPressed();
+                                }
                               },
-                              icon: Icon(
-                                Icons.video_call_outlined,
-                              ),
+                              icon: Icon(_isRecording
+                                  ? Icons.videocam_off
+                                  : Icons.videocam),
                             ),
                           ),
                           Container(
@@ -85,7 +142,10 @@ class Video extends StatelessWidget {
                               ),
                             ),
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: _controller != null &&
+                                      _controller.value.isRecordingVideo
+                                  ? null
+                                  : _onCameraSwitch,
                               icon: Icon(
                                 Icons.refresh,
                                 size: 34,
@@ -98,12 +158,140 @@ class Video extends StatelessWidget {
                   ],
                 )));
   }
+
+  _buildCameraPreview() {
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
+
+    return FutureBuilder<void>(
+      future: _initializeControllerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          // If the Future is complete, display the preview.
+          return Transform.scale(
+              scale: _controller.value.aspectRatio / deviceRatio,
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: CameraPreview(_controller), //cameraPreview
+                ),
+              ));
+        } else {
+          return Center(
+              child:
+                  CircularProgressIndicator()); // Otherwise, display a loading indicator.
+        }
+      },
+    );
+  }
+
+  Future<void> _onCameraSwitch() async {
+    final CameraDescription cameraDescription =
+        (_controller.description == _cameras[0]) ? _cameras[1] : _cameras[0];
+
+    if (_controller != null) {
+      await _controller.dispose();
+    }
+    _controller = CameraController(
+      cameraDescription,
+      ResolutionPreset.medium,
+      enableAudio: enableAudio,
+    );
+
+    _controller.addListener(() {
+      if (mounted) setState(() {});
+      if (_controller.value.hasError) {
+        showInSnackBar('Camera error ${_controller.value.errorDescription}');
+      }
+    });
+
+    try {
+      await _controller.initialize();
+    } on CameraException catch (e) {
+      print(e);
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void onVideoRecordButtonPressed() {
+    startVideoRecording().then((_) {
+      if (mounted) setState(() => _isRecording = true);
+    });
+  }
+
+  void onStopButtonPressed() {
+    stopVideoRecording().then((file) {
+      if (mounted) setState(() => _isRecording = false);
+
+      if (file != null) {
+        showInSnackBar('Video recorded to ${file.path}');
+        print('Video recorded to ${file.path}');
+        videoFile = file;
+      }
+    });
+  }
+
+  Future<void> startVideoRecording() async {
+    if (!_controller.value.isInitialized) {
+      showInSnackBar('Error: select a camera first.');
+      return;
+    }
+
+    if (_controller.value.isRecordingVideo) {
+      // A recording is already started, do nothing.
+      return;
+    }
+
+    try {
+      await _controller.startVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return;
+    }
+  }
+
+  Future<XFile> stopVideoRecording() async {
+    if (!_controller.value.isRecordingVideo) {
+      return null;
+    }
+
+    try {
+      return _controller.stopVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return null;
+    }
+  }
+
+  String _timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
+
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showCameraException(CameraException e) {
+    logError(e.code, e.description);
+    showInSnackBar('Error: ${e.code}\n${e.description}');
+  }
+
+  void logError(String code, String message) =>
+      print('Error: $code\nError Message: $message');
 }
 
+//
+//
+//
 class EducaBottomSheet extends StatelessWidget {
-  const EducaBottomSheet({
+  EducaBottomSheet({
     Key key,
+    @required this.videoFile,
   }) : super(key: key);
+
+  final XFile videoFile;
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +333,7 @@ class EducaBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: ElevatedButton(
                 onPressed: () {
+                  StorageProvider().store(path: videoFile.path);
                   Navigator.pop(context);
                   Navigator.pop(context, 'uploading video');
                 },
