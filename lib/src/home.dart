@@ -9,18 +9,28 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   var _currentIndex = 0;
+
+  var result;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BookTab(),
+
+      // fab
       floatingActionButton: FloatingActionButton(
-        onPressed: null,
+        onPressed: () async {
+          result = await Navigator.pushNamed(context, '/video');
+          print(result);
+        },
         backgroundColor: kEducaBlue,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16))),
         child: Icon(Icons.video_call_outlined),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+
+      // Bottomnavbar
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: (val) => setState(() => _currentIndex = val),

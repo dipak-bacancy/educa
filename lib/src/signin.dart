@@ -39,6 +39,7 @@ class SigninForm extends StatefulWidget {
 class _SigninFormState extends State<SigninForm> {
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Form(
       child: Column(
         children: <Widget>[
@@ -54,7 +55,13 @@ class _SigninFormState extends State<SigninForm> {
           ),
           TextFormField(
             decoration: InputDecoration(
-              suffix: Text('Forgot?'),
+              suffixIcon: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Forgot?',
+                  style: textTheme.headline3.copyWith(color: kEducaBlue),
+                ),
+              ),
               hintText: 'Password',
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.only(
@@ -70,9 +77,8 @@ class _SigninFormState extends State<SigninForm> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: ElevatedButton(
-                onPressed: () {
-                  // Respond to button press
-                },
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/home'),
                 child: Text(
                   'Continue',
                   style: Theme.of(context)

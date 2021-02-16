@@ -16,13 +16,13 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
 
-    // _loadWidget();
+    _loadWidget();
   }
 
   _loadWidget() async {
     var _duration = Duration(seconds: splashDelay);
     return Timer(
-        _duration, () => Navigator.pushReplacementNamed(context, '/login'));
+        _duration, () => Navigator.pushReplacementNamed(context, '/signin'));
   }
 
   @override
