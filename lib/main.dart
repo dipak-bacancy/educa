@@ -3,10 +3,13 @@ import 'package:educa/src/home.dart';
 import 'package:educa/src/signin.dart';
 import 'package:educa/src/splash.dart';
 import 'package:educa/src/video.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
