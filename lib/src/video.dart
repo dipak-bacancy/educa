@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:educa/model/storage.dart';
 import 'package:educa/src/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Video extends StatefulWidget {
   @override
@@ -21,7 +18,7 @@ class _VideoState extends State<Video> {
   bool _isRecording = false;
   bool enableAudio = true;
 
-  XFile videoFile;
+  // XFile videoFile;
 
   @override
   void initState() {
@@ -115,14 +112,14 @@ class _VideoState extends State<Video> {
                               ),
                             ),
                             child: IconButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_isRecording) {
-                                  onStopButtonPressed();
+                                  XFile _file = await onStopButtonPressed();
+
                                   showBottomSheet<void>(
                                       context: context,
                                       builder: (BuildContext context) =>
-                                          EducaBottomSheet(
-                                              videoFile: videoFile));
+                                          EducaBottomSheet(videoFile: _file));
                                 } else {
                                   onVideoRecordButtonPressed();
                                 }
@@ -222,16 +219,12 @@ class _VideoState extends State<Video> {
     });
   }
 
-  void onStopButtonPressed() {
-    stopVideoRecording().then((file) {
-      if (mounted) setState(() => _isRecording = false);
+  Future<XFile> onStopButtonPressed() async {
+    final _file = await stopVideoRecording();
 
-      if (file != null) {
-        showInSnackBar('Video recorded to ${file.path}');
-        print('Video recorded to ${file.path}');
-        videoFile = file;
-      }
-    });
+    if (mounted) setState(() => _isRecording = false);
+
+    return _file;
   }
 
   Future<void> startVideoRecording() async {
@@ -259,14 +252,12 @@ class _VideoState extends State<Video> {
     }
 
     try {
-      return _controller.stopVideoRecording();
+      return await _controller.stopVideoRecording();
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
     }
   }
-
-  String _timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
     // ignore: deprecated_member_use
@@ -292,6 +283,9 @@ class EducaBottomSheet extends StatelessWidget {
   }) : super(key: key);
 
   final XFile videoFile;
+
+  final _titleController = TextEditingController();
+  final _topicController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +327,11 @@ class EducaBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: ElevatedButton(
                 onPressed: () {
-                  StorageProvider().store(path: videoFile.path);
+                  final title = _titleController.value;
+                  final topic = _topicController.value;
+                  final path = '$title/$topic';
+
+                  StorageProvider().store(videofile: videoFile, path: path);
                   Navigator.pop(context);
                   Navigator.pop(context, 'uploading video');
                 },
