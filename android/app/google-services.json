@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "433115059540",
+    "project_id": "educa-fd765",
+    "storage_bucket": "educa-fd765.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433115059540:android:929a0c3e890384700f24c1",
+        "android_client_info": {
+          "package_name": "com.example.educa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433115059540-2gaffuvp0d9n9ssllea5gni4eecj5m0t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.educa",
+            "certificate_hash": "6c8a6fb44ed346852e36dad7ed628cf58f72a9d2"
+          }
+        },
+        {
+          "client_id": "433115059540-ppfjfrkq5vklqrdl89bdmura8f92dato.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9I807K8pWOnvnI4gFR5i5nNEipq_5aEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433115059540-ppfjfrkq5vklqrdl89bdmura8f92dato.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
