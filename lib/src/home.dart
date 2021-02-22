@@ -19,8 +19,7 @@ class _HomeState extends State<Home> {
       // fab
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          result = await Navigator.pushNamed(context, '/video');
-          print(result);
+          Navigator.pushNamed(context, '/video');
         },
         backgroundColor: kEducaBlue,
         shape: RoundedRectangleBorder(

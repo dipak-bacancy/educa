@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:educa/model/storage.dart';
 import 'package:educa/src/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Video extends StatefulWidget {
   @override
@@ -276,7 +277,7 @@ class _VideoState extends State<Video> {
 //
 //
 //
-class EducaBottomSheet extends StatelessWidget {
+class EducaBottomSheet extends StatefulWidget {
   EducaBottomSheet({
     Key key,
     @required this.videoFile,
@@ -284,8 +285,22 @@ class EducaBottomSheet extends StatelessWidget {
 
   final XFile videoFile;
 
+  @override
+  _EducaBottomSheetState createState() => _EducaBottomSheetState();
+}
+
+class _EducaBottomSheetState extends State<EducaBottomSheet> {
   final _titleController = TextEditingController();
+
   final _topicController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    _titleController.dispose();
+    _topicController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -327,13 +342,14 @@ class EducaBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: ElevatedButton(
                 onPressed: () {
-                  final title = _titleController.value;
-                  final topic = _topicController.value;
-                  final path = '$title/$topic';
+                  String title = _titleController.text;
+                  String topic = _topicController.text;
 
-                  StorageProvider().store(videofile: videoFile, path: path);
+                  context.read<StorageProvider>().store(
+                      videofile: widget.videoFile, title: title, topic: topic);
+
                   Navigator.pop(context);
-                  Navigator.pop(context, 'uploading video');
+                  Navigator.pop(context);
                 },
                 child: Text(
                   'Upload',

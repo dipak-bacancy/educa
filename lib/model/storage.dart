@@ -1,22 +1,87 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:educa/model/firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 
 //
-class StorageProvider {
+class StorageProvider with ChangeNotifier {
   FirebaseStorage storage = FirebaseStorage.instance;
 
-  Future<void> store({XFile videofile, String path}) async {
+  final firestore = Firestore();
+
+  bool _isUploading = false;
+  bool _isUploaded = false;
+
+  bool get isUploading => _isUploading;
+  bool get isUploaded => _isUploaded;
+
+  // download Progress
+  double _progress = 0;
+
+  get downloadProgress => _progress;
+
+  Future<void> store({XFile videofile, String title, String topic}) async {
     assert(videofile != null);
     File file = File(videofile.path);
-    print(videofile.mimeType);
+
+    _progress = null;
+    notifyListeners();
+
+    UploadTask task = storage.ref(videofile.name).putFile(file);
+
+    task.snapshotEvents.listen((TaskSnapshot snapshot) {
+      print('Task state: ${snapshot.state}');
+      print(
+          'Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
+      _progress = ((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+          .roundToDouble();
+      notifyListeners();
+    }, onError: (e) {
+      // The final snapshot is also available on the task via `.snapshot`,
+      // this can include 2 additional states, `TaskState.error` & `TaskState.canceled`
+      print(task.snapshot);
+
+      if (e.code == 'permission-denied') {
+        print('User does not have permission to upload to this reference.');
+      }
+    });
+
     try {
-      await storage.ref('$path.mp4').putFile(file);
+      _isUploading = true;
+      await task;
+
+      String url = await storage.ref(videofile.name).getDownloadURL();
+
+      await firestore.addVideo(title: title, topic: topic, url: url);
+
+      _isUploaded = true;
+      notifyListeners();
+
+      resetValues();
+
+      print('Upload complete.');
     } on FirebaseException catch (e) {
-      print(e.message);
-      // e.g, e.code == 'canceled'
+      if (e.code == 'permission-denied') {
+        print('User does not have permission to upload to this reference.');
+      }
+      // ...
     }
+  }
+
+  Future<String> getDownloadUrl(name) async {
+    return await storage.ref(name).getDownloadURL();
+
+    // Within your widgets:
+    // Image.network(downloadURL);
+  }
+
+  void resetValues() {
+    _progress = 0;
+    _isUploading = false;
+    _isUploaded = false;
+    notifyListeners();
   }
 }

@@ -1,10 +1,15 @@
+import 'package:educa/model/storage.dart';
 import 'package:educa/src/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BookTab extends StatelessWidget {
   BookTab({
     Key key,
   }) : super(key: key);
+
+  @override
+  void initState() {}
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,9 @@ class BookTab extends StatelessWidget {
             'Hello, Alex',
             style: textTheme.headline2,
           ),
+          Progress(),
           SizedBox(height: 14),
+          // Progress(),
           Padding(
             padding: const EdgeInsets.only(right: 48.0),
             child: Text(
@@ -135,5 +142,60 @@ class Item extends StatelessWidget {
             )
           ],
         ));
+  }
+}
+
+class Progress extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Consumer<StorageProvider>(
+      builder: (context, state, child) {
+        if (state.isUploaded) {
+          print('sucess');
+          showDialog<void>(
+              context: context,
+              builder: (BuildContext context) => Dialog(
+                    child: Container(
+                      height: 206,
+                      decoration: BoxDecoration(
+                        color: kEducaGreen,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: Text('Success'),
+                    ),
+                  ));
+        }
+        return Visibility(
+          visible: state.isUploading,
+          child: Container(
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
+              height: 100,
+              decoration: BoxDecoration(
+                  color: kEducaGreen,
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Icon(Icons.cloud_upload_outlined),
+                  Text.rich(
+                    TextSpan(
+                        text: 'Your video is being uploaded! \n',
+                        children: [
+                          TextSpan(
+                            text: '${state.downloadProgress}% Uploaded',
+                            style: textTheme.headline3
+                                .copyWith(fontSize: 13, color: Colors.white),
+                          ),
+                        ]),
+                    style: textTheme.headline3.copyWith(color: Colors.white),
+                  ),
+                ],
+              )),
+        );
+      },
+    );
   }
 }

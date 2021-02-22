@@ -1,3 +1,4 @@
+import 'package:educa/model/storage.dart';
 import 'package:educa/src/colors.dart';
 import 'package:educa/src/home.dart';
 import 'package:educa/src/signin.dart';
@@ -5,6 +6,7 @@ import 'package:educa/src/splash.dart';
 import 'package:educa/src/video.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
@@ -18,16 +20,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: _buildKeducaTheme(),
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (context) => Splash(),
-        '/signin': (context) => Signin(),
-        '/home': (context) => Home(),
-        '/video': (context) => Video(),
-      },
+    return ChangeNotifierProvider<StorageProvider>(
+      create: (_) => StorageProvider(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: _buildKeducaTheme(),
+        initialRoute: '/splash',
+        routes: {
+          '/splash': (context) => Splash(),
+          '/signin': (context) => Signin(),
+          '/home': (context) => Home(),
+          '/video': (context) => Video(),
+        },
+      ),
     );
   }
 
