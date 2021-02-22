@@ -61,14 +61,9 @@ class BookTab extends StatelessWidget {
                     ),
                     color: kEducaBlue,
                   ),
-                  child: GestureDetector(
-                    onTap: () {
-                      _showSuccessDailog(context);
-                    },
-                    child: Icon(
-                      Icons.search,
-                      color: kEducaWhite,
-                    ),
+                  child: Icon(
+                    Icons.search,
+                    color: kEducaWhite,
                   ),
                 ),
                 hintText: 'Content Creation|',
