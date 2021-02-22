@@ -323,15 +323,20 @@ class _EducaBottomSheetState extends State<EducaBottomSheet> {
           Text('Topic', style: textTheme.bodyText1.copyWith(color: kEducaBlue)),
           SizedBox(height: 6),
           TextFormField(
-            initialValue: 'Biology Basics',
+            controller: _titleController,
+            // initialValue: 'Biology Basics',
+            decoration: InputDecoration(hintText: 'Biology Basics'),
             style: textTheme.headline3,
           ),
           SizedBox(height: 23),
           Text('Title', style: textTheme.bodyText1.copyWith(color: kEducaBlue)),
           SizedBox(height: 6),
           TextFormField(
+            controller: _topicController,
             style: textTheme.headline3,
-            initialValue: 'Biology & Scientific Methodologies',
+            decoration: InputDecoration(
+              hintText: 'Biology & Scientific Methodologies',
+            ),
           ),
           Spacer(),
           Container(
