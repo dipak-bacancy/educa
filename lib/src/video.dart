@@ -89,6 +89,7 @@ class _VideoState extends State<Video> {
                         children: <Widget>[
                           Container(
                             height: 44,
+                            padding: const EdgeInsets.only(right: 15),
                             decoration: BoxDecoration(
                                 color: kEducaBlack.withOpacity(.25),
                                 borderRadius: BorderRadius.only(
@@ -132,6 +133,7 @@ class _VideoState extends State<Video> {
                           ),
                           Container(
                             height: 44,
+                            padding: const EdgeInsets.only(left: 15),
                             decoration: BoxDecoration(
                               color: kEducaBlack.withOpacity(.25),
                               borderRadius: BorderRadius.only(
@@ -317,7 +319,11 @@ class _EducaBottomSheetState extends State<EducaBottomSheet> {
           SizedBox(height: 28),
           Align(
             alignment: Alignment.topRight,
-            child: Text('Retake', style: textTheme.headline3),
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Retake', style: textTheme.headline3)),
           ),
           SizedBox(height: 19),
           Text('Topic', style: textTheme.bodyText1.copyWith(color: kEducaBlue)),
