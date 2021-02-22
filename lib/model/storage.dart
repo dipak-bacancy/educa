@@ -53,16 +53,16 @@ class StorageProvider with ChangeNotifier {
       _isUploading = true;
       await task;
 
+      _isUploaded = true;
+      notifyListeners();
+
       String url = await storage.ref(videofile.name).getDownloadURL();
 
       await firestore.addVideo(title: title, topic: topic, url: url);
 
-      _isUploaded = true;
-      notifyListeners();
+      print('Upload complete.');
 
       resetValues();
-
-      print('Upload complete.');
     } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
         print('User does not have permission to upload to this reference.');
@@ -73,9 +73,6 @@ class StorageProvider with ChangeNotifier {
 
   Future<String> getDownloadUrl(name) async {
     return await storage.ref(name).getDownloadURL();
-
-    // Within your widgets:
-    // Image.network(downloadURL);
   }
 
   void resetValues() {

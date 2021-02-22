@@ -9,7 +9,7 @@ class Firestore with ChangeNotifier {
     return videos
         .add({
           'id': DateTime.now(),
-          'title ': title,
+          'title': title,
           'topic': topic,
           'url': url,
         })
@@ -17,7 +17,9 @@ class Firestore with ChangeNotifier {
         .catchError((error) => print("Failed to add user: $error"));
   }
 
-  Future<void> getVideos() {
-    return FirebaseFirestore.instance.collection('videos').get();
+  Future<List<QueryDocumentSnapshot>> getVideos() async {
+    var querySnapshot = await videos.get();
+
+    return querySnapshot.docs;
   }
 }
