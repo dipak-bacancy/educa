@@ -43,14 +43,16 @@ class _ForgotState extends State<Forgot> {
                 'Forgot password?',
                 style: textTheme.headline2.copyWith(color: kEducaBlue),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-                child: Text(
-                  'Please enter your email address to reset password.',
-                  style: textTheme.headline3,
-                ),
+              SizedBox(height: 30),
+              Text(
+                'Please enter your email address',
+                style: textTheme.headline3,
               ),
+              Text(
+                'to reset password',
+                style: textTheme.headline3,
+              ),
+              SizedBox(height: 30),
               Form(
                 key: _formkey,
                 child: TextFormField(
@@ -81,10 +83,12 @@ class _ForgotState extends State<Forgot> {
                     onPressed: () {
                       if (_formkey.currentState.validate()) {
                         _formkey.currentState.save();
-                        _auth.resetPassword(email: email).then((val) {
+                        _auth.resetPassword(email: email).then((val) async {
                           if (val == null) {
                             _scafoldKey.currentState.showSnackBar(SnackBar(
                                 content: Text('check your email for further')));
+
+                            await Future.delayed(Duration(seconds: 2));
 
                             Navigator.pop(context);
                           } else {
