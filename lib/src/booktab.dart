@@ -170,21 +170,8 @@ class Item extends StatelessWidget {
 
   final QueryDocumentSnapshot data;
 
-  var uint8list;
-
-  @override
-  Future<void> initState() async {
-    uint8list = await VideoThumbnail.thumbnailFile(
-      video: data['url'],
-      imageFormat: ImageFormat.WEBP,
-      maxHeight:
-          64, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
-      quality: 75,
-    );
-  }
-
   Future<dynamic> getThumbnail(String url) async {
-    uint8list = await VideoThumbnail.thumbnailData(
+    final uint8list = await VideoThumbnail.thumbnailData(
       video: data['url'],
       imageFormat: ImageFormat.WEBP,
       maxHeight:
@@ -202,6 +189,7 @@ class Item extends StatelessWidget {
         width: 250,
         height: 332,
         decoration: BoxDecoration(
+          // color: kEducaBlack,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Stack(
@@ -227,7 +215,13 @@ class Item extends StatelessWidget {
                     alignment: Alignment.center,
                   );
                 }
-                return CircularProgressIndicator();
+                return Column(
+                  children: [
+                    SizedBox(height: 30),
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                  ],
+                );
               },
             ),
             Container(
