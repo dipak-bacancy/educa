@@ -81,9 +81,12 @@ class _SigninFormState extends State<SigninForm> {
             decoration: InputDecoration(
               suffixIcon: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Forgot?',
-                  style: textTheme.headline3.copyWith(color: kEducaBlue),
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/forgot'),
+                  child: Text(
+                    'Forgot?',
+                    style: textTheme.headline3.copyWith(color: kEducaBlue),
+                  ),
                 ),
               ),
               hintText: 'Password',

@@ -30,10 +30,13 @@ class _ForgotState extends State<Forgot> {
               SizedBox(height: 50),
               Align(
                 alignment: Alignment.topLeft,
-                child: Icon(
-                  Icons.arrow_back,
-                  size: 30,
-                  color: kEducaBlack,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 30,
+                    color: kEducaBlack,
+                  ),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
               Text(
@@ -79,12 +82,15 @@ class _ForgotState extends State<Forgot> {
                       if (_formkey.currentState.validate()) {
                         _formkey.currentState.save();
                         _auth.resetPassword(email: email).then((val) {
-                          val == null
-                              ? Scaffold.of(context).showSnackBar(SnackBar(
-                                  content:
-                                      Text('check your email for further')))
-                              : Scaffold.of(context)
-                                  .showSnackBar(SnackBar(content: Text(val)));
+                          if (val == null) {
+                            _scafoldKey.currentState.showSnackBar(SnackBar(
+                                content: Text('check your email for further')));
+
+                            Navigator.pop(context);
+                          } else {
+                            _scafoldKey.currentState
+                                .showSnackBar(SnackBar(content: Text(val)));
+                          }
                         });
                       }
                     },

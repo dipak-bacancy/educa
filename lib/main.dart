@@ -1,8 +1,13 @@
 import 'package:educa/model/storage.dart';
+import 'package:educa/src/Created.dart';
 import 'package:educa/src/colors.dart';
+
+import 'package:educa/src/forgot.dart';
 import 'package:educa/src/home.dart';
 import 'package:educa/src/signin.dart';
+import 'package:educa/src/signup.dart';
 import 'package:educa/src/splash.dart';
+import 'package:educa/src/terms.dart';
 import 'package:educa/src/video.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +30,16 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: _buildKeducaTheme(),
-        initialRoute: '/splash',
+        initialRoute: '/signin',
         routes: {
           '/splash': (context) => Splash(),
           '/signin': (context) => Signin(),
+          '/signup': (context) => Signup(),
+          '/created': (context) => Created(),
+          '/forgot': (context) => Forgot(),
           '/home': (context) => Home(),
           '/video': (context) => Video(),
+          '/terms': (context) => Terms(),
         },
       ),
     );
