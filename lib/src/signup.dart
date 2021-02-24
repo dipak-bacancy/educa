@@ -1,7 +1,10 @@
+import 'package:educa/model/storage.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:educa/model/authentication.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:io';
 import 'colors.dart';
 
 class Signup extends StatelessWidget {
@@ -62,6 +65,21 @@ class _SignupFormState extends State<SignupForm> {
 
   String email, password, name;
   bool agree = false;
+
+  File _image;
+  final picker = ImagePicker();
+
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
 
   final underlineStyle =
       TextStyle(decoration: TextDecoration.underline, color: kEducaBlue);
@@ -125,6 +143,26 @@ class _SignupFormState extends State<SignupForm> {
               )),
             ),
           ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              FlatButton(
+                onPressed: getImage,
+                child: Text(' select image'),
+              ),
+              Center(
+                child: _image == null
+                    ? Text('No image selected.')
+                    : Image.file(
+                        _image,
+                        height: 100,
+                        width: 100,
+                      ),
+              ),
+            ],
+          ),
+
           _buildAcceptTerms(context),
 
           SizedBox(height: 40),
@@ -136,12 +174,18 @@ class _SignupFormState extends State<SignupForm> {
               borderRadius: BorderRadius.circular(10),
               child: ElevatedButton(
                 onPressed: () {
+                  if (_image == null) return;
                   if (_formkey.currentState.validate()) {
                     _formkey.currentState.save();
                     _auth
                         .signUp(email: email, password: password)
-                        .then((result) {
+                        .then((result) async {
                       if (result == null) {
+                        await StorageProvider()
+                            .uploadImage(image: _image, username: name);
+
+                        print('uploaded');
+
                         Navigator.pushReplacementNamed(context, '/created');
                       } else {
                         Scaffold.of(context)

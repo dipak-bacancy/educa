@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:path/path.dart';
 import 'package:camera/camera.dart';
 import 'package:educa/model/firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,6 +19,7 @@ class StorageProvider with ChangeNotifier {
   bool get isUploaded => _isUploaded;
 
   // download Progress
+
   double _progress = 0;
 
   get downloadProgress => _progress;
@@ -28,6 +29,7 @@ class StorageProvider with ChangeNotifier {
     File file = File(videofile.path);
 
     _progress = null;
+    _isUploading = true;
     notifyListeners();
 
     UploadTask task = storage.ref(videofile.name).putFile(file);
@@ -50,7 +52,6 @@ class StorageProvider with ChangeNotifier {
     });
 
     try {
-      _isUploading = true;
       await task;
 
       _isUploaded = true;
@@ -80,5 +81,22 @@ class StorageProvider with ChangeNotifier {
     _isUploading = false;
     _isUploaded = false;
     notifyListeners();
+  }
+
+  Future<void> uploadImage({File image, String username}) async {
+    final name = basename(image.path);
+    try {
+      await storage.ref('Image/$name').putFile(image);
+
+      String url = await storage.ref('Image/$name').getDownloadURL();
+
+      print(url);
+
+      await firestore.addImage(username: username, url: url);
+    } on FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+
+      print(e.message);
+    }
   }
 }

@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: _buildKeducaTheme(),
-        initialRoute: '/signin',
+        initialRoute: '/signup',
         routes: {
           '/splash': (context) => Splash(),
           '/signin': (context) => Signin(),
